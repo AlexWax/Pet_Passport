@@ -20,5 +20,5 @@ def preprocess_image(image_path):
 
     return new_path
 
-
-preprocess_img = preprocess_image("MyPassport1.jpg")
+if __name__ == "__main__":
+    preprocess_img = preprocess_image("MyPassport1.jpg")
