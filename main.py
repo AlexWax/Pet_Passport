@@ -1,10 +1,10 @@
 import pytesseract
 import numpy as np
 from PIL import Image
-from Drow_box import draw_boxes
-from Cv2 import preprocess_image
+from ImageDrawing import draw_boxes_let
+from ImagePreprocessing import preprocess_image, scale_image
+from Validation import cer_accuracy
 import cv2
-from Craft import find_box
 from hezar.models import Model
 from hezar.utils import load_image, draw_boxes, show_image
 
@@ -19,6 +19,8 @@ class Passport:
 
     def find_box(self):
         image = load_image(self.image_path)
+        image = scale_image(np.array(image))
+        image = Image.fromarray(image)
         outputs = self.model.predict(image)
         return outputs[0]["boxes"]
 
@@ -29,7 +31,8 @@ class Passport:
 
     def show_text_in_passport(self):
         boxes = self.find_box()
-        image = draw_boxes(image_path=self.image_path, box_data=boxes, config=self.config)
+        image, text = draw_boxes_let(image_path=self.image_path, box_data=boxes)
+        cer_accuracy(image_path=self.image_path, predictions=text)
         return image
 
 
