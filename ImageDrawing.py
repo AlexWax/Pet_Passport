@@ -2,15 +2,13 @@ from PIL import Image, ImageDraw, ImageFont
 import cv2
 import numpy as np
 import pytesseract
-import easyocr
-from ImagePreprocessing import scale_image, preprocess_image
+from ImagePreprocessing import scale_image, preprocess_text_box
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
-def draw_boxes_let(image: np.array, box_data: list) -> Image:
+def draw_boxes_let(image: np.array, box_data: list, text) -> Image:
     image = scale_image(image)
-    reader = easyocr.Reader(["ru"])
 
     font_cv = cv2.FONT_HERSHEY_SIMPLEX
     font = ImageFont.truetype("arial.ttf", 10)
@@ -19,27 +17,9 @@ def draw_boxes_let(image: np.array, box_data: list) -> Image:
     text_color = (0, 0, 0)
     background_color = (255, 255, 255)
 
-    text_out = []
-    text_sn = []
-
     for box in box_data:
         x, y, w, h = box
-        roi = image[y:y + h, x:x + w]
-        roi = preprocess_image(roi)[1]
 
-        if h > w:
-            roi = cv2.rotate(roi, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
-        text = reader.readtext(roi, detail=1)
-        if len(text) == 0 or h < image.shape[1]//20:
-            continue
-        else:
-            text = text[0][-2].capitalize()
-        if x > 0.88*image.shape[0]:
-            text_sn.append(text)
-        else:
-            text_out.append(text)
-        print(text)
         pts = np.array([[x, y], [x+w, y], [x+w, y+h], [x, y+h]], dtype=np.int32)
 
         center_x = int(np.mean(pts[:, 0]))
@@ -74,9 +54,10 @@ def draw_boxes_let(image: np.array, box_data: list) -> Image:
             font_thickness,
             cv2.LINE_AA,
         )"""
-    text_out.extend(text_sn)
-    return image, text_out
+
+    return image
 
 
 if __name__ == '__main__':
-    draw_boxes_let('Photo/2.jpg', '~ 235 0 314 8 0').show()
+    image = draw_boxes_let(cv2.imread('Photo/2.jpg'), [[484, 218, 22, 70]], 'text')
+    cv2.imwrite("new_path.jpg", image)

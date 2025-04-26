@@ -14,7 +14,10 @@ def scale_image(image, target_height=400):
     return resized_image
 
 
-def preprocess_image(image):
+def preprocess_text_box(image):
+    if image.shape[1] > image.shape[0]:
+        image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     kernel = np.ones((1, 1), np.uint8)
@@ -29,4 +32,4 @@ def preprocess_image(image):
 
 
 if __name__ == "__main__":
-    preprocess_img = preprocess_image("MyPassport1.jpg")
+    preprocess_img = preprocess_text_box("MyPassport1.jpg")

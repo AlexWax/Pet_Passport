@@ -1,10 +1,9 @@
 import numpy as np
 import re
 import os
-from PIL import Image
-from BoxesSearch import text_boxes_search, photo_box_search
+from BoxesSearch import text_boxes_search, photo_box_search, text_in_box_definition
 from ImageDrawing import draw_boxes_let
-from ImagePreprocessing import preprocess_image, scale_image, cut_rot_image
+from ImagePreprocessing import preprocess_text_box, scale_image, cut_rot_image
 from Validation import cer_accuracy
 import cv2
 
@@ -42,14 +41,15 @@ class Passport:
         print(self.boxes)
 
     def show_text_in_passport(self):
-        image, text = draw_boxes_let(image=self.image, box_data=self.boxes[1:])
-        cer_accuracy(image_path=self.image_path, predictions=text)
-        return image
+        text_in_box_definition(image=self.image, text_boxes=self.boxes[1:])
+        # image = draw_boxes_let(image=self.image, box_data=self.boxes[1:], text='aga')
+        #cer_accuracy(image_path=self.image_path, predictions=text)
+        return "image"
 
 
 files = [f"Photo/{elem}.jpg" for elem in [1, 2, 3, 4]]
 
-passport = Passport(files[0])
+passport = Passport(files[1])
 cv2.imwrite("new_path.jpg", passport.show_text_in_passport())
 
 # print(show_text_in_passport(files[0])[1])
