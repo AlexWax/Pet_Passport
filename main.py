@@ -1,37 +1,48 @@
-import pytesseract
 import numpy as np
+import re
+import os
 from PIL import Image
+from BoxesSearch import text_boxes_search, photo_box_search
 from ImageDrawing import draw_boxes_let
-from ImagePreprocessing import preprocess_image, scale_image
+from ImagePreprocessing import preprocess_image, scale_image, cut_rot_image
 from Validation import cer_accuracy
 import cv2
-from hezar.models import Model
-from hezar.utils import load_image, draw_boxes, show_image
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
 class Passport:
     def __init__(self, image_path):
+        self.image_path_check(image_path)
         self.image_path = image_path
-        self.config = '--psm 7 -c tessedit_char_whitelist=0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя'
-        self.model = Model.load("hezarai/CRAFT")
+        self.image = self.prep_image()
+        self.boxes = []
+        self.find_boxes()
 
-    def find_box(self):
-        image = load_image(self.image_path)
-        image = scale_image(np.array(image))
-        image = Image.fromarray(image)
-        outputs = self.model.predict(image)
-        return outputs[0]["boxes"]
+    @staticmethod
+    def image_path_check(image_path):
+        pattern = r".jpg|.png|.jpeg"
+        if not isinstance(image_path, str):
+            raise TypeError(f"Ожидается строка, получено: {type(image_path).__name__}")
+        if not [f for f in re.finditer(pattern, image_path)]:
+            raise ValueError("Разрешение файла не указано или не верно")
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"Файл {image_path} не существует!")
 
-    def extract_text_from_passport(self):
-        img = Image.open(self.image_path)
-        text_from_img = pytesseract.image_to_string(img, lang='rus')
-        return text_from_img
+    def prep_image(self):
+        image = cv2.imread(self.image_path)
+        photo_box = photo_box_search(image)
+        image = cut_rot_image(image, photo_box)
+        image = scale_image(image)
+        return image
+
+    def find_boxes(self):
+        photo_box = photo_box_search(self.image)
+        text_boxes = text_boxes_search(self.image)
+        self.boxes.append(photo_box)
+        self.boxes.extend(text_boxes)
+        print(self.boxes)
 
     def show_text_in_passport(self):
-        boxes = self.find_box()
-        image, text = draw_boxes_let(image_path=self.image_path, box_data=boxes)
+        image, text = draw_boxes_let(image=self.image, box_data=self.boxes[1:])
         cer_accuracy(image_path=self.image_path, predictions=text)
         return image
 

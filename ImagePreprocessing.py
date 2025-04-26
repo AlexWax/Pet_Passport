@@ -2,6 +2,10 @@ import cv2
 import numpy as np
 
 
+def cut_rot_image(image, photo_box):
+    return image
+
+
 def scale_image(image, target_height=400):
     original_height, original_width = image.shape[:2]
     scale = target_height / original_height

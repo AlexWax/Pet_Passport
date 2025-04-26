@@ -8,8 +8,7 @@ from ImagePreprocessing import scale_image, preprocess_image
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
-def draw_boxes_let(image_path: str, box_data: list) -> Image:
-    image = cv2.imread(image_path)
+def draw_boxes_let(image: np.array, box_data: list) -> Image:
     image = scale_image(image)
     reader = easyocr.Reader(["ru"])
 
