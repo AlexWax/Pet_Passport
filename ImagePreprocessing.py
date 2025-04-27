@@ -3,6 +3,15 @@ import numpy as np
 
 
 def cut_rot_image(image, photo_box):
+    x_min, y_min, x_max, y_max = [int(elem) for elem in photo_box]
+    w, h = x_max - x_min, y_max - y_min
+    roi = image[int(y_min-h/2.4):int(y_max+h/2.4), x_min:]
+    return roi
+
+
+def rot_image(image):
+    if image.shape[0] > image.shape[1]:
+        image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return image
 
 
@@ -15,9 +24,6 @@ def scale_image(image, target_height=400):
 
 
 def preprocess_text_box(image):
-    if image.shape[1] > image.shape[0]:
-        image = cv2.rotate(image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     kernel = np.ones((1, 1), np.uint8)

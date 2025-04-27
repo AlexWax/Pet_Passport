@@ -4,8 +4,9 @@ from ultralytics import YOLO
 from PIL import Image, ImageDraw
 from hezar.models import Model
 from hezar.utils import load_image, draw_boxes, show_image
-from ImagePreprocessing import preprocess_text_box
+from ImagePreprocessing import preprocess_text_box, rot_image
 import easyocr
+from ImageDrawing import draw_boxes_let
 
 
 def photo_box_search(image):
@@ -23,29 +24,18 @@ def text_boxes_search(image):
 
 def text_in_box_definition(image, text_boxes):
     reader = easyocr.Reader(["ru"])
-    text_out = dict()
-    text_out['undef_text'] = []
-    text_sn = ""
-    box_sn = []
+    text_out = []
 
     for box in text_boxes:
         x, y, w, h = box
         roi = image[y:y + h, x:x + w]
-        roi = preprocess_text_box(roi)[1]
+        #roi = preprocess_text_box(roi)[1]
+        roi = rot_image(roi)
 
-        text = reader.readtext(roi, detail=1)
-        if len(text) == 0 or h < image.shape[1] // 20:
-            continue
+        text = reader.readtext(roi, detail=0)
+        if len(text) == 0:
+            text = '?'
         else:
-            text = text[0][-2].capitalize()
-        if x > 0.88 * image.shape[0]:
-            text_sn += text
-            box_sn.append(box)
-        else:
-            text_out['undef_text'].append((text, box))
-
-    box_sn = np.array(box_sn)
-    text_out['series+number'] = (text_sn, (min(box_sn[:, 0]), max(box_sn[:, 1]),
-                                           max(box_sn[:, 2]), abs(box_sn[0, 1] - box_sn[-1, 1]) + box_sn[0, 3]))
-    print(text_out)
+            text = text[0].lower().strip(".,:!`'?/|[](){} ")
+        text_out.append(text)
     return text_out

@@ -4,7 +4,7 @@ import os
 from BoxesSearch import text_boxes_search, photo_box_search, text_in_box_definition
 from ImageDrawing import draw_boxes_let
 from ImagePreprocessing import preprocess_text_box, scale_image, cut_rot_image
-from Validation import cer_accuracy
+from Validation import cer_accuracy, box_check
 import cv2
 
 
@@ -15,6 +15,7 @@ class Passport:
         self.image = self.prep_image()
         self.boxes = []
         self.find_boxes()
+        self.show_text_in_passport()
 
     @staticmethod
     def image_path_check(image_path):
@@ -35,21 +36,19 @@ class Passport:
 
     def find_boxes(self):
         photo_box = photo_box_search(self.image)
-        text_boxes = text_boxes_search(self.image)
+        text_boxes_q = text_boxes_search(self.image)
+        text_boxes = box_check(self.image, text_boxes_q)
         self.boxes.append(photo_box)
         self.boxes.extend(text_boxes)
         print(self.boxes)
 
     def show_text_in_passport(self):
-        text_in_box_definition(image=self.image, text_boxes=self.boxes[1:])
-        # image = draw_boxes_let(image=self.image, box_data=self.boxes[1:], text='aga')
-        #cer_accuracy(image_path=self.image_path, predictions=text)
-        return "image"
+        text = text_in_box_definition(image=self.image, text_boxes=self.boxes[1:])
+        draw_boxes_let(image=self.image, box_data=self.boxes[1:], text=text)
+        # cer_accuracy(image_path=self.image_path, predictions=text)
+        print({str(box): text for box, text in zip(self.boxes[1:], text)})
 
 
-files = [f"Photo/{elem}.jpg" for elem in [1, 2, 3, 4]]
+files = [f"Photo/{elem}.png" for elem in [1, 2, 3, 4]]
 
-passport = Passport(files[1])
-cv2.imwrite("new_path.jpg", passport.show_text_in_passport())
-
-# print(show_text_in_passport(files[0])[1])
+passport = Passport(files[3])
