@@ -1,5 +1,4 @@
 import jiwer
-import numpy as np
 
 
 def cer_accuracy(image_path, predictions, true_values=None):
@@ -16,7 +15,6 @@ def cer_accuracy(image_path, predictions, true_values=None):
     else:
         predictions = predictions[:len(true_values[0])+1]
     cer = jiwer.cer(true_values[int(num)-1], predictions)
-    print(cer)
     return cer
 
 

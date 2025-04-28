@@ -8,7 +8,6 @@ from ImagePreprocessing import preprocess_text_box, rot_image
 import easyocr
 
 
-
 def photo_box_search(image):
     model_for_img = YOLO("yolo11n")
     photo_box = model_for_img(image)

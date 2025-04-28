@@ -1,10 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import cv2
 import numpy as np
-import pytesseract
-from ImagePreprocessing import scale_image, preprocess_text_box
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
 def draw_boxes_let(image: np.array, box_data: list) -> Image:
@@ -53,7 +49,7 @@ def draw_boxes_let(image: np.array, box_data: list) -> Image:
             cv2.LINE_AA,
         )"""
 
-    cv2.imwrite("new_path.jpg", image)
+    cv2.imwrite("output.jpg", image)
 
 
 def transform_boxes(box_data, mode='h'):
@@ -73,7 +69,7 @@ def transform_boxes(box_data, mode='h'):
         h = max(box_data, key=lambda x: x[3])[3]
     else:
         raise AttributeError('Unknown mode!')
-    box = (min_x, min_y, w, h)
+    box = tuple(float(elem) for elem in (min_x, min_y, w, h))
     return box
 
 

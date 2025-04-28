@@ -3,7 +3,7 @@ import re
 import os
 from BoxesSearch import text_boxes_search, photo_box_search, text_in_box_definition
 from ImageDrawing import draw_boxes_let
-from OutpuGeneration import heuristic_field_search
+from OutpuGeneration import HeuristicFieldSearch, output_generation
 from ImagePreprocessing import preprocess_text_box, scale_image, cut_rot_image
 from Validation import cer_accuracy, box_check
 import cv2
@@ -41,13 +41,12 @@ class Passport:
         text_boxes = box_check(self.image, text_boxes_q)
         self.boxes.append(photo_box)
         self.boxes.extend(text_boxes)
-        print(self.boxes)
 
     def show_text_in_passport(self):
         text = text_in_box_definition(image=self.image, text_boxes=self.boxes[1:])
-
-        output_dict = heuristic_field_search(text, self.boxes)
-        draw_boxes_let(image=self.image, box_data=[(key, value[0]["box"]) for key, value in output_dict.items()])
+        hfc = HeuristicFieldSearch(text, self.boxes)
+        output_dict = hfc.return_output()
+        output_generation(self.image, output_dict)
         # cer_accuracy(image_path=self.image_path, predictions=text)
 
 
