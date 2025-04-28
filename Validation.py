@@ -28,7 +28,7 @@ def box_check(image, text_boxes, y_threshold=18, x_threshold=0.88):
         if h < image.shape[0] // y_threshold:
             continue
         if x > x_threshold * image.shape[1]:
-            box_sn.append(box)
+            box_sn.append(list(box))
         else:
             box_out.append(box)
     box_out.extend(box_sn)

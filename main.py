@@ -3,6 +3,7 @@ import re
 import os
 from BoxesSearch import text_boxes_search, photo_box_search, text_in_box_definition
 from ImageDrawing import draw_boxes_let
+from OutpuGeneration import heuristic_field_search
 from ImagePreprocessing import preprocess_text_box, scale_image, cut_rot_image
 from Validation import cer_accuracy, box_check
 import cv2
@@ -44,11 +45,12 @@ class Passport:
 
     def show_text_in_passport(self):
         text = text_in_box_definition(image=self.image, text_boxes=self.boxes[1:])
-        draw_boxes_let(image=self.image, box_data=self.boxes[1:], text=text)
+
+        output_dict = heuristic_field_search(text, self.boxes)
+        draw_boxes_let(image=self.image, box_data=[(key, value[0]["box"]) for key, value in output_dict.items()])
         # cer_accuracy(image_path=self.image_path, predictions=text)
-        print({str(box): text for box, text in zip(self.boxes[1:], text)})
 
 
-files = [f"Photo/{elem}.png" for elem in [1, 2, 3, 4]]
+files = [f"Photo/{elem}.jpg" for elem in [1, 2, 3, 4]]
 
-passport = Passport(files[3])
+passport = Passport(files[1])

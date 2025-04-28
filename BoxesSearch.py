@@ -6,7 +6,7 @@ from hezar.models import Model
 from hezar.utils import load_image, draw_boxes, show_image
 from ImagePreprocessing import preprocess_text_box, rot_image
 import easyocr
-from ImageDrawing import draw_boxes_let
+
 
 
 def photo_box_search(image):
