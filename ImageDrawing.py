@@ -3,8 +3,13 @@ import cv2
 import numpy as np
 
 
-def draw_boxes_let(image: np.array, box_data: list) -> Image:
-
+def draw_boxes_let(image: np.array, box_data: list):
+    """
+    Draw boxes with text on input image
+    :param image: input image in tensor form
+    :param box_data: list like: [text for box, box coordinates]
+    :return: save changed image to "output.jpg"
+    """
     font_cv = cv2.FONT_HERSHEY_SIMPLEX
     font = ImageFont.truetype("arial.ttf", 10)
     font_scale = 0.4
@@ -17,14 +22,13 @@ def draw_boxes_let(image: np.array, box_data: list) -> Image:
         pts = np.array([[x, y], [x+w, y], [x+w, y+h], [x, y+h]], dtype=np.int32)
 
         center_x = int(np.mean(pts[:, 0]))
-        center_y = int(np.mean(pts[:, 1]))
 
         pts = pts.reshape((-1, 1, 2))
         cv2.polylines(image, [pts], isClosed=True, color=(0, 255, 0), thickness=2)
 
         (text_width, text_height), _ = cv2.getTextSize(txt, font_cv, font_scale, font_thickness)
         text_x = center_x - text_width // 2
-        text_y = center_y + text_height // 2
+        text_y = int(y) - text_height // 2
 
         cv2.rectangle(
             image,
@@ -52,7 +56,13 @@ def draw_boxes_let(image: np.array, box_data: list) -> Image:
     cv2.imwrite("output.jpg", image)
 
 
-def transform_boxes(box_data, mode='h'):
+def transform_boxes(box_data: list, mode: str = 'h') -> tuple:
+    """
+    Merge list of boxes into one in two modes.
+    :param box_data: list of boxes
+    :param mode: 'h' - horizontal mode (merging in x-direction); 'v' - vertical mode (merging in y-direction)
+    :return: tuple like: [x_min, y_min, width, height] of merged box
+    """
     if mode == 'v':
         min_x = min(box_data, key=lambda x: x[0])[0]
         min_y = min(box_data, key=lambda x: x[1])[1]
@@ -71,8 +81,3 @@ def transform_boxes(box_data, mode='h'):
         raise AttributeError('Unknown mode!')
     box = tuple(float(elem) for elem in (min_x, min_y, w, h))
     return box
-
-
-if __name__ == '__main__':
-    imag = draw_boxes_let(cv2.imread('Photo/2.jpg'), [484, 218, 22, 70], 'text')
-    cv2.imwrite("new_path.jpg", imag)
